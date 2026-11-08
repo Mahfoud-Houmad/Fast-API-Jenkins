@@ -1,0 +1,53 @@
+services:
+  controller:
+    image: jenkins/jenkins:lts-jdk21
+    container_name: jenkins-controller-demo
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - jenkins_controller_home:/var/jenkins_home
+    networks: [ci-net]
+
+  agent-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: jenkins-agent-builder-demo
+    restart: unless-stopped
+    depends_on: [controller]
+    environment:
+      JENKINS_URL: http://controller:8080/
+      JENKINS_AGENT_NAME: agent-builder
+      JENKINS_SECRET: ${BUILDER_SECRET:-}
+      JENKINS_WEB_SOCKET: "true"
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+    volumes:
+      - jenkins_builder_workspace:/home/jenkins/agent
+    networks: [ci-net]
+
+  agent-tester:
+    build:
+      context: .
+      dockerfile: Dockerfile.agent
+    container_name: jenkins-agent-tester-demo
+    restart: unless-stopped
+    depends_on: [controller]
+    environment:
+      JENKINS_URL: http://controller:8080/
+      JENKINS_AGENT_NAME: agent-tester
+      JENKINS_SECRET: ${TESTER_SECRET:-}
+      JENKINS_WEB_SOCKET: "true"
+      JENKINS_AGENT_WORKDIR: /home/jenkins/agent
+    volumes:
+      - jenkins_tester_workspace:/home/jenkins/agent
+    networks: [ci-net]
+
+networks:
+  ci-net:
+    driver: bridge
+
+volumes:
+  jenkins_controller_home:
+  jenkins_builder_workspace:
+  jenkins_tester_workspace:
