@@ -3,3 +3,6 @@ pytest-cov>=6.2
 ruff>=0.12
 mypy>=1.17
 httpx>=0.28
+fastapi>=0.116
+uvicorn[standard]>=0.35
+pydantic-settings>=2.10
