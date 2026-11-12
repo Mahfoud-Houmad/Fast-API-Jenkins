@@ -1,6 +1,8 @@
 pipeline {
     agent none
-
+    triggers {
+        pollSCM('* * * * *')
+    }
     options {
         timestamps()
         skipDefaultCheckout(true)
@@ -9,6 +11,12 @@ pipeline {
 
     stages {
         stage('Checkout') {
+            when {
+                    anyOf {
+                        branch 'main'
+                        branch 'develop'
+                    }
+            }
             agent { label 'builder' }
             steps {
                 deleteDir()
