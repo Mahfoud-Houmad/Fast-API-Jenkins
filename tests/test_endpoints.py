@@ -7,7 +7,7 @@ def test_root_message():
     client = TestClient(app)
     res = client.get("/")
     assert res.status_code == 200
-    assert res.json() == {"message": "the server active"}
+    assert res.json() == {"message": "the server is now active"}
 
 
 def test_health_ok():
