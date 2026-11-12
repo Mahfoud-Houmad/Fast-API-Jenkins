@@ -1,8 +1,6 @@
 pipeline {
     agent none
-    triggers {
-        pollSCM('* * * * *')
-    }
+
     options {
         timestamps()
         skipDefaultCheckout(true)
@@ -11,12 +9,6 @@ pipeline {
 
     stages {
         stage('Checkout') {
-            when {
-                    anyOf {
-                        branch 'main'
-                        branch 'develop'
-                    }
-            }
             agent { label 'builder' }
             steps {
                 deleteDir()
@@ -30,6 +22,8 @@ pipeline {
         stage('Lint') {
             agent { label 'builder' }
             steps {
+                deleteDir()
+                unstash 'sources'
                 sh '''
                     set -eu
                     echo "Lint sur $(hostname)"
@@ -43,6 +37,8 @@ pipeline {
         stage('Build') {
             agent { label 'builder' }
             steps {
+                deleteDir()
+                unstash 'sources'
                 sh '''
                     set -eu
                     echo "Build sur $(hostname)"
